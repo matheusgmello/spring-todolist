@@ -9,28 +9,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-
+/**
+ * Modificador
+ * public
+ * private
+ * protected
+ */
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
+  
   @Autowired
   private IUserRepository userRepository;
 
   @PostMapping("/")
-  public ResponseEntity create(@RequestBody UserModel userModel){
+  public ResponseEntity create(@RequestBody UserModel userModel) {
     var user = this.userRepository.findByUsername(userModel.getUsername());
-
-    if (user != null){
+    
+    if (user != null) {
+      System.out.println("Usuário Já existe.");
+      // Mensagem de erro
+      // Status Code
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário já existe");
     }
 
-    var passowordHashred = BCrypt.withDefaults().hashToString(12, userModel.getPassword().toCharArray());
-
-    userModel.setPassword(passowordHashred);
+    var passwordHashred = BCrypt.withDefaults().hashToString(12, userModel.getPassword().toCharArray());
+    
+    userModel.setPassword(passwordHashred);
 
     var userCreated = this.userRepository.save(userModel);
     return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
   }
-
 }
